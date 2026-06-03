@@ -1,0 +1,13 @@
+{
+  "_comment": "Frozen webhook-signing test vectors, copied verbatim from the competition's API repo (docs/test_vectors.json). The server-side signer AND the reference verifier both pin to these values, so you can confirm your verifier is wired up correctly without waiting for a real broadcast. Do not edit.",
+  "vectors": [
+    {
+      "name": "minimal payload, single signature",
+      "secret": "whsec_dGVzdC1zZWNyZXQtMzItYnl0ZXMtZm9yLXRlc3R2ZWN0",
+      "webhook_id": "evt_01HX7M9TESTVECTORID",
+      "timestamp": 1714850123,
+      "raw_body": "{\"id\":\"evt_01HX7M9TESTVECTORID\",\"event_id\":\"e1\"}",
+      "expected_signature_header": "v1,vIYng2J6M2XsRpNnxCKxc178O2qAxCx9m/umiJLOtho="
+    }
+  ]
+}
