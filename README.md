@@ -23,6 +23,10 @@ to the API — all before it ACKs the webhook, so you're always inside your dead
 
 ### 0. Install
 
+This repo uses [uv](https://docs.astral.sh/uv/). If you don't have it yet, follow
+the [installation guide](https://docs.astral.sh/uv/getting-started/installation/)
+(or skip it and use the plain `pip` commands shown in parentheses throughout).
+
 ```bash
 uv sync                       # (or: python -m venv .venv && pip install -e ".[dev]")
 ```
