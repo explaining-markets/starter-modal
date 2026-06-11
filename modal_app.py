@@ -15,9 +15,13 @@ That's safe because your per-event deadline starts when you ACK 200 — so you'v
 always submitted before the clock starts. Deliveries are deduped on the
 `Webhook-Id` header (the server retries on 5xx/timeout, so the same event can
 arrive more than once).
-"""
 
-from __future__ import annotations
+Note: we deliberately do NOT use `from __future__ import annotations` here. The
+route handlers are defined inside `web()`, and FastAPI must see the real `Request`
+/ `Response` classes (not stringized annotations it can't resolve from this nested
+scope) to inject them correctly — otherwise it treats `request` as a query
+parameter and rejects every delivery with 422.
+"""
 
 import modal
 
