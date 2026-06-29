@@ -19,25 +19,30 @@ to the API — all before it ACKs the webhook, so you're always inside your dead
 
 ---
 
+## Prerequisites
+
+This repo uses [uv](https://docs.astral.sh/uv/) — install it from the
+[uv installation guide](https://docs.astral.sh/uv/getting-started/installation/).
+
+> **Prefer pip?** Run `python -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"`
+> instead of `uv sync`, and drop the `uv run` prefix from every command below.
+
 ## Quickstart
 
-### 0. Install
-
-This repo uses [uv](https://docs.astral.sh/uv/). If you don't have it yet, follow
-the [installation guide](https://docs.astral.sh/uv/getting-started/installation/)
-(or skip it and use the plain `pip` commands shown in parentheses throughout).
+### 0. Install and sign in to Modal
 
 ```bash
-uv sync                       # (or: python -m venv .venv && pip install -e ".[dev]")
+uv sync
 ```
 
-You'll also need a [Modal account](https://modal.com) and the CLI authenticated:
+If you're new to Modal, create a free account and authenticate (one time — skip if
+you already have a Modal token on this machine):
 
 ```bash
-uv run modal setup            # (or: modal setup)
+uv run modal setup
 ```
 
-### 1. Sign up and create a submission
+### 1. Create a submission
 
 In the [portal](https://explainingmarkets.ai), complete your profile, then create
 a submission and give it a public name. It stays in `draft` until both credentials
@@ -50,37 +55,40 @@ secret** (`whsec_...`). They're shown **once** — store them now; rotation is t
 recovery path. The API key authenticates your prediction requests; the signing
 secret verifies incoming webhooks.
 
-### 3. Store them as a Modal Secret
+### 3. Put your credentials in `.env`
 
-Create a Modal Secret named `explaining-markets` carrying your credentials:
+Copy the template:
 
 ```bash
-uv run modal secret create explaining-markets \
-  EM_API_KEY=...           \
-  EM_WEBHOOK_SECRET=whsec_... \
-  OPENAI_API_KEY=...          # optional; omit to use the 0.5 baseline
-# (or drop the `uv run` prefix if you installed with pip)
+cp .env.example .env
 ```
 
-`EM_API_BASE_URL` defaults to the beta API and `OPENAI_MODEL` to `gpt-5.4-nano`;
-add them to the secret only if you want to override. See `.env.example` for the
-full list.
+Then open `.env` and paste in your two credentials:
+
+```dotenv
+EM_API_KEY=...your key...
+EM_WEBHOOK_SECRET=whsec_...your secret...
+```
+
+That's the whole secret setup — Modal reads `.env` automatically at deploy time, so
+there's no command to run. (`.env` is gitignored; never commit it. Add
+`OPENAI_API_KEY` here too if you want real LLM predictions instead of the baseline.)
 
 ### 4. Deploy
 
 ```bash
-uv run modal deploy modal_app.py     # (or: modal deploy modal_app.py)
+uv run modal deploy modal_app.py
 ```
 
-Modal prints a persistent public URL. Your webhook endpoint is that URL with
-`/competition/webhook` appended. The deployment keeps running after you close your
-laptop.
+Modal prints a persistent public URL like
+`https://<your-workspace>--explaining-markets.modal.run`. **That URL is your webhook
+URL — copy it as-is, nothing to append.** The deployment keeps running after you
+close your laptop.
 
 ### 5. Set your webhook URL and smoke-test
 
-On the submission's **Webhook** tab, paste your endpoint URL
-(`https://...modal.run/competition/webhook`). Once credentials and a webhook URL
-are both set, the submission becomes `active`.
+On the submission's **Webhook** tab, paste the URL from the previous step. Once
+credentials and a webhook URL are both set, the submission becomes `active`.
 
 Click **Test Webhook** to send a synthetic delivery. The handler verifies it,
 sees `event_type == "TEST"`, and ACKs with 200 without submitting. The **Health**
@@ -117,7 +125,7 @@ You can POST again before the deadline to update — the last accepted POST wins
 ## Run the tests
 
 ```bash
-uv run pytest                 # (or: pytest)
+uv run pytest
 ```
 
 Both suites run fully offline — no API key, no network. One checks that
@@ -142,11 +150,13 @@ customize it):
 - **Not deduping on `Webhook-Id`.** The server retries on 5xx and timeout, so the
   same event can arrive more than once. This app dedupes via a `modal.Dict`.
 
-If predictions aren't landing: confirm the `explaining-markets` Modal Secret has
-`EM_API_KEY` and `EM_WEBHOOK_SECRET`, that the submission is `active`, and that
-you pasted the `/competition/webhook` URL (not the bare deploy URL) into the
-portal. The **Health** tab's prediction counter should increment for non-TEST
-events.
+If predictions aren't landing: confirm your `.env` has `EM_API_KEY` and
+`EM_WEBHOOK_SECRET` filled in (then re-deploy so Modal reloads it), that the
+submission is `active`, and that you pasted the deploy URL into the portal. The
+**Health** tab's prediction counter should increment for non-TEST events.
+
+If `modal deploy` errors that it can't find `.env`, you're missing the file —
+`cp .env.example .env` and fill it in. Modal needs it present at deploy time.
 
 For queue-based processing, swapping the vendored verifier for a published
 package, and other extensions, see [`docs/advanced.md`](docs/advanced.md).

@@ -1,13 +1,17 @@
 """Modal deployment for the Explaining Markets starter.
 
 This is plumbing — you shouldn't need to edit it. It defines a small FastAPI app
-with two routes and deploys it as a persistent, public web endpoint:
+and deploys it as a persistent, public web endpoint:
 
-    GET  /                      health check
-    POST /competition/webhook   receive a signed event, verify, predict, submit
+    GET  /    health check
+    POST /    receive a signed event, verify, predict, submit
+              (POST /competition/webhook is kept as an alias of the same handler)
 
-Deploy:    modal deploy modal_app.py     (or: uv run modal deploy modal_app.py)
-Dev/local: modal serve modal_app.py      (or: uv run modal serve modal_app.py)
+The webhook is served at the root path on purpose: the URL Modal prints on deploy
+*is* your webhook URL — paste it into the portal as-is, nothing to append.
+
+Deploy:    uv run modal deploy modal_app.py
+Dev/local: uv run modal serve modal_app.py
 
 The webhook handler is synchronous: it verifies the signature, runs your
 `predict()` from predict.py, submits the result, and only then ACKs with 200.
@@ -38,11 +42,13 @@ image = (
 seen_webhooks = modal.Dict.from_name("em-webhook-dedupe", create_if_missing=True)
 
 
+# Credentials are read from your local .env at deploy time (see .env.example).
+# Prefer Modal's secret store instead? See docs/advanced.md.
 @app.function(
     image=image,
-    secrets=[modal.Secret.from_name("explaining-markets")],
+    secrets=[modal.Secret.from_dotenv(__file__)],
 )
-@modal.asgi_app()
+@modal.asgi_app(label="explaining-markets")
 def web():
     from fastapi import FastAPI, Request, Response
 
@@ -58,7 +64,8 @@ def web():
     def health() -> dict:
         return {"ok": True, "service": "explaining-markets-starter"}
 
-    @api.post("/competition/webhook")
+    @api.post("/")
+    @api.post("/competition/webhook")  # alias, so an explicit-path URL also works
     async def competition_webhook(request: Request) -> Response:
         config = Config.from_env()
 

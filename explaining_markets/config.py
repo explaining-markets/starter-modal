@@ -1,6 +1,9 @@
 """Configuration read from the environment.
 
-Required (set these as a Modal Secret named ``explaining-markets``):
+In deployment these come from your local ``.env`` file, which Modal loads at
+deploy time (see ``.env.example`` and ``modal_app.py``).
+
+Required:
   EM_API_KEY         your submission's API key; sent as the X-API-Key header
   EM_WEBHOOK_SECRET  your signing secret (whsec_...); verifies incoming webhooks
 
@@ -40,8 +43,8 @@ def _require(name: str) -> str:
     value = os.environ.get(name)
     if not value:
         raise RuntimeError(
-            f"{name} is not set. Add it to the 'explaining-markets' Modal Secret "
-            f"(see .env.example and the README)."
+            f"{name} is not set. Add it to your .env file "
+            f"(copy .env.example to .env), then re-deploy. See the README."
         )
     return value
 
