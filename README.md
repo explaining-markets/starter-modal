@@ -50,24 +50,25 @@ and a webhook URL are set.
 
 ### 2. Get your credentials
 
-On the submission's **Credentials** tab, generate your **API key** and **signing
-secret** (`whsec_...`). They're shown **once** — store them now; rotation is the
-recovery path. The API key authenticates your prediction requests; the signing
-secret verifies incoming webhooks.
+On the submission's **Credentials** tab, generate your credentials. The tab gives
+you a copy box already in `.env` format — exactly the two lines this starter needs:
+
+```dotenv
+EM_API_KEY=...
+EM_WEBHOOK_SECRET=whsec_...
+```
+
+They're shown **once**, so copy the box now; rotation is the recovery path. (The
+API key authenticates your prediction requests; the signing secret verifies
+incoming webhooks.)
 
 ### 3. Put your credentials in `.env`
 
-Copy the template:
+Create your `.env` from the template, then paste the copied box into it, replacing
+the two placeholder lines:
 
 ```bash
 cp .env.example .env
-```
-
-Then open `.env` and paste in your two credentials:
-
-```dotenv
-EM_API_KEY=...your key...
-EM_WEBHOOK_SECRET=whsec_...your secret...
 ```
 
 That's the whole secret setup — Modal reads `.env` automatically at deploy time, so
