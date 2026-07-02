@@ -45,21 +45,28 @@ uv run modal setup
 ### 1. Create a submission
 
 In the [portal](https://explainingmarkets.ai), complete your profile, then create
-a submission and give it a public name. It stays in `draft` until both credentials
-and a webhook URL are set.
+a submission and give it a public name. You'll land on its **Overview** tab, which
+has a **Setup checklist** that walks you through the rest:
 
-### 2. Get your credentials
+> **Credentials initialized → Webhook URL set → Submission is live → Verify your endpoint works**
 
-On the submission's **Credentials** tab, generate your credentials. The tab gives
-you a copy box already in `.env` format — exactly the two lines this starter needs:
+The next steps map onto that checklist; the submission goes live automatically once
+the first two are done.
+
+### 2. Initialize credentials (checklist: *Credentials initialized*)
+
+Run the checklist's first item to mint your **API key** and **webhook signing
+secret**. A dialog shows them **once**, under the heading *"Ready to paste into
+.env"*, already formatted — exactly the two lines this starter needs:
 
 ```dotenv
 EM_API_KEY=...
 EM_WEBHOOK_SECRET=whsec_...
 ```
 
-They're shown **once**, so copy the box now; rotation is the recovery path. (The
-API key authenticates your prediction requests; the signing secret verifies
+Click **Copy** (the dialog won't let you continue until you do) — you won't see
+these again, so don't close it before the next step; rotation is the recovery path.
+(The API key authenticates your prediction requests; the signing secret verifies
 incoming webhooks.)
 
 ### 3. Put your credentials in `.env`
@@ -86,14 +93,18 @@ Modal prints a persistent public URL like
 URL — copy it as-is, nothing to append.** The deployment keeps running after you
 close your laptop.
 
-### 5. Set your webhook URL and smoke-test
+### 5. Set your webhook URL, go live, and smoke-test (checklist: the rest)
 
-On the submission's **Webhook** tab, paste the URL from the previous step. Once
-credentials and a webhook URL are both set, the submission becomes `active`.
+Back on the Overview checklist, do **Webhook URL set**: paste the URL from the
+previous step (it must be HTTPS) and click **Save webhook URL**. As soon as
+credentials and a URL are both set, **Submission is live** flips on automatically —
+no extra action.
 
-Click **Test Webhook** to send a synthetic delivery. The handler verifies it,
-sees `event_type == "TEST"`, and ACKs with 200 without submitting. The **Health**
-tab shows rolling delivery counters so you can confirm the round trip.
+The last item, **Verify your endpoint works**, is optional but recommended. Click
+**Send test event** to send a synthetic delivery. Your handler verifies it, sees
+`event_type == "TEST"`, and ACKs with 200 without submitting; the checklist then
+shows *"Your endpoint responded successfully."* If it doesn't appear right away,
+check the **Health** tab for rolling delivery counters.
 
 ### 6. Edit `predict.py`
 
@@ -153,8 +164,9 @@ customize it):
 
 If predictions aren't landing: confirm your `.env` has `EM_API_KEY` and
 `EM_WEBHOOK_SECRET` filled in (then re-deploy so Modal reloads it), that the
-submission is `active`, and that you pasted the deploy URL into the portal. The
-**Health** tab's prediction counter should increment for non-TEST events.
+submission shows as live (the checklist's **Submission is live** item), and that
+you pasted the deploy URL into the portal. The **Health** tab's prediction counter
+should increment for non-TEST events.
 
 If `modal deploy` errors that it can't find `.env`, you're missing the file —
 `cp .env.example .env` and fill it in. Modal needs it present at deploy time.
