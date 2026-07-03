@@ -1,6 +1,9 @@
 # Secrets — never commit
 .env
 
+# Local-only dev/maintenance scripts (this repo is public — keep them out)
+scripts/
+
 # Python
 __pycache__/
 *.py[cod]
