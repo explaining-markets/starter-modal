@@ -44,9 +44,9 @@ uv run modal setup
 
 ### 1. Create a submission
 
-In the [portal](https://explainingmarkets.ai), complete your profile, then create
-a submission and give it a public name. You'll land on its **Overview** tab, which
-has a **Setup checklist** that walks you through the rest:
+In the [portal](https://portal-beta.explainingmarkets.ai/submissions), complete
+your profile, then create a submission and give it a public name. You'll land on its
+**Overview** tab, which has a **Setup checklist** that walks you through the rest:
 
 > **Credentials → Webhook URL → Submission is live → Verify your endpoint works**
 
@@ -60,18 +60,17 @@ key** and **webhook signing secret**. A dialog shows them **once**, under the
 heading *"Ready to paste into .env"*, already formatted — exactly the two lines this
 starter needs:
 
-```dotenv
-EM_API_KEY=...
-EM_WEBHOOK_SECRET=whsec_...
-```
+> `EM_API_KEY=...`
+>
+> `EM_WEBHOOK_SECRET=whsec_...`
 
 Click **Copy** (the dialog won't let you continue until you do) — you won't see
 these again, so don't close it before the next step. (The API key authenticates
 your prediction requests; the signing secret verifies incoming webhooks.)
 
-If you ever need new credentials, that same item becomes **Replace credentials** —
-after replacing, update `.env` and re-deploy (step 4) so Modal picks up the new
-secret.
+**Note:** If you ever need new credentials — e.g., because they were accidentally
+leaked — that same item becomes **Replace credentials**. Clicking it mints a new set
+you can use to continue from **Step 3**.
 
 ### 3. Put your credentials in `.env`
 
@@ -97,7 +96,7 @@ Modal prints a persistent public URL like
 URL — copy it as-is, nothing to append.** The deployment keeps running after you
 close your laptop.
 
-### 5. Set your webhook URL, go live, and smoke-test (checklist: the rest)
+### 5. Set your webhook URL, go live, and verify
 
 Back on the Overview checklist, do **Webhook URL**: paste the URL from the previous
 step (it must be reachable over HTTPS in production; `http://` is allowed in dev)
