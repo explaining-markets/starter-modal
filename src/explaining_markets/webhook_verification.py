@@ -1,11 +1,10 @@
 """Reference verifier for Explaining Markets Competition webhooks.
 
-Vendored, stdlib-only. This is a verbatim copy of the canonical verifier that
-lives in the competition's API repo at
-``packages/competition_webhooks/src/competition_webhooks/__init__.py``. It is
-copied in (rather than installed from PyPI) so the starter is self-contained and
-has zero runtime dependencies for verification. If/when that package is published,
-you can swap this file for a pinned dependency — see ``docs/advanced.md``.
+Vendored, stdlib-only. This is a verbatim copy of the competition's canonical
+verifier, copied in (rather than installed from PyPI) so the starter is
+self-contained and has zero runtime dependencies for verification. If/when that
+package is published, you can swap this file for a pinned dependency — see
+``docs/advanced.md``.
 
 Webhooks are signed Standard-Webhooks style: HMAC-SHA256 over
 ``Webhook-Id . Webhook-Timestamp . raw_body`` using your ``whsec_...`` secret.
