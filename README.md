@@ -48,16 +48,17 @@ In the [portal](https://explainingmarkets.ai), complete your profile, then creat
 a submission and give it a public name. You'll land on its **Overview** tab, which
 has a **Setup checklist** that walks you through the rest:
 
-> **Credentials initialized → Webhook URL set → Submission is live → Verify your endpoint works**
+> **Credentials → Webhook URL → Submission is live → Verify your endpoint works**
 
 The next steps map onto that checklist; the submission goes live automatically once
 the first two are done.
 
-### 2. Initialize credentials (checklist: *Credentials initialized*)
+### 2. Initialize credentials (checklist: *Credentials*)
 
-Run the checklist's first item to mint your **API key** and **webhook signing
-secret**. A dialog shows them **once**, under the heading *"Ready to paste into
-.env"*, already formatted — exactly the two lines this starter needs:
+Click **Initialize credentials** (the checklist's first item) to mint your **API
+key** and **webhook signing secret**. A dialog shows them **once**, under the
+heading *"Ready to paste into .env"*, already formatted — exactly the two lines this
+starter needs:
 
 ```dotenv
 EM_API_KEY=...
@@ -65,9 +66,12 @@ EM_WEBHOOK_SECRET=whsec_...
 ```
 
 Click **Copy** (the dialog won't let you continue until you do) — you won't see
-these again, so don't close it before the next step; rotation is the recovery path.
-(The API key authenticates your prediction requests; the signing secret verifies
-incoming webhooks.)
+these again, so don't close it before the next step. (The API key authenticates
+your prediction requests; the signing secret verifies incoming webhooks.)
+
+If you ever need new credentials, that same item becomes **Replace credentials** —
+after replacing, update `.env` and re-deploy (step 4) so Modal picks up the new
+secret.
 
 ### 3. Put your credentials in `.env`
 
@@ -95,10 +99,10 @@ close your laptop.
 
 ### 5. Set your webhook URL, go live, and smoke-test (checklist: the rest)
 
-Back on the Overview checklist, do **Webhook URL set**: paste the URL from the
-previous step (it must be HTTPS) and click **Save webhook URL**. As soon as
-credentials and a URL are both set, **Submission is live** flips on automatically —
-no extra action.
+Back on the Overview checklist, do **Webhook URL**: paste the URL from the previous
+step (it must be reachable over HTTPS in production; `http://` is allowed in dev)
+and click **Save webhook URL**. As soon as credentials and a URL are both set,
+**Submission is live** flips on automatically — no extra action.
 
 The last item, **Verify your endpoint works**, is optional but recommended. Click
 **Send test event** to send a synthetic delivery. Your handler verifies it, sees
