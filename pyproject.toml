@@ -22,10 +22,14 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# The package is importable via the editable install (which points at src/).
+# "." restores only the repo-root entry that the top-level entry scripts
+# (predict.py, modal_app.py) need — it does not re-expose the package from root.
+pythonpath = ["."]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["explaining_markets"]
+packages = ["src/explaining_markets"]
