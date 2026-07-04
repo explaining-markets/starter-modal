@@ -9,7 +9,7 @@ predictions from Python.
 ```
 predict.py                 ← your strategy lives here
 modal_app.py               ← FastAPI app + webhook handler (don't touch)
-explaining_markets/        ← config, verifier, API client, helpers (plumbing)
+src/explaining_markets/    ← config, verifier, API client, helpers (plumbing)
 tests/                     ← predict shape + webhook verification
 ```
 

@@ -5,7 +5,7 @@ collects everything intentionally left out of it.
 
 ## The webhook verifier is vendored
 
-`explaining_markets/webhook_verification.py` is a verbatim copy of the
+`src/explaining_markets/webhook_verification.py` is a verbatim copy of the
 competition's reference verifier (stdlib-only, zero runtime dependencies). It's
 vendored — not installed from PyPI — so the starter is self-contained.
 
