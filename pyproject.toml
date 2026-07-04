@@ -1,6 +1,6 @@
 [project]
 name = "explaining-markets-modal-starter"
-version = "0.1.0"
+version = "0.1.0b1"
 description = "A minimal Modal starter for the Explaining Markets competition."
 readme = "README.md"
 requires-python = ">=3.10"
