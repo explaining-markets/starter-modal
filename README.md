@@ -1,7 +1,7 @@
 # Explaining Markets — Modal starter
 
-A minimal [Modal](https://modal.com) starter for the Explaining Markets
-competition. Deploy a signed webhook receiver, verify events, and submit
+A minimal [Modal](https://modal.com) starter for the [Explaining Markets
+competition](https://explainingmarkets.ai/). Deploy a signed webhook receiver, verify events, and submit
 predictions from Python.
 
 **Edit `predict.py`. Everything else is plumbing.**
