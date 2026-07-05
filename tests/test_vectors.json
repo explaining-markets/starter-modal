@@ -1,5 +1,5 @@
 {
-  "_comment": "Frozen webhook-signing test vectors, copied verbatim from the competition's API repo (docs/test_vectors.json). The server-side signer AND the reference verifier both pin to these values, so you can confirm your verifier is wired up correctly without waiting for a real broadcast. Do not edit.",
+  "_comment": "Frozen webhook-signing test vectors, copied verbatim from the competition's API repo (docs/test_vectors.json). The server-side signer AND the reference verifier both pin to these values, so you can confirm your verifier is wired up correctly without waiting for a real broadcast. Single-signature vectors carry a scalar 'secret'; rotation-overlap vectors carry a 'secrets' list (current secret first) and an 'expected_signature_header' with one space-delimited 'v1,...' signature per secret. Do not edit.",
   "vectors": [
     {
       "name": "minimal payload, single signature",
@@ -8,6 +8,17 @@
       "timestamp": 1714850123,
       "raw_body": "{\"id\":\"evt_01HX7M9TESTVECTORID\",\"event_id\":\"e1\"}",
       "expected_signature_header": "v1,vIYng2J6M2XsRpNnxCKxc178O2qAxCx9m/umiJLOtho="
+    },
+    {
+      "name": "rotation overlap, two signatures (current secret first)",
+      "secrets": [
+        "whsec_cm90YXRpb24tY3VycmVudC1zZWNyZXQtMzItYnl0ZXM",
+        "whsec_cm90YXRpb24tcHJldmlvdXMtc2VjcmV0LTMyYnl0ZSE"
+      ],
+      "webhook_id": "evt_01HX7M9ROTATIONVECTOR",
+      "timestamp": 1714850123,
+      "raw_body": "{\"id\":\"evt_01HX7M9ROTATIONVECTOR\",\"event_id\":\"e2\"}",
+      "expected_signature_header": "v1,wCGWQpJklrBow2HfEQIXZl9MLbBpV6eKhAXZ03OoqTA= v1,8axRlr9R2kFkemPuZjd2iV0YcCpw+qqUy30rV18iR3I="
     }
   ]
 }
