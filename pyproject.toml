@@ -20,6 +20,13 @@ dev = [
     "pytest>=8.3",
 ]
 
+# Mirror of the dev group for pip users (`pip install -e ".[dev]"`) — plain pip
+# doesn't read [dependency-groups]. Keep the two lists in sync.
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 # The package is importable via the editable install (which points at src/).
