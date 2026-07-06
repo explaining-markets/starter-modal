@@ -1,5 +1,9 @@
 # Explaining Markets — Modal starter
 
+<p align="center">
+  <img src="docs/images/submission_flow.png" alt="Submission flow: the competition platform signs and delivers an event webhook to your endpoint, your predict() returns a percentile per asset, and the app submits it back to the API — all inside your 5-minute window." width="800">
+</p>
+
 A minimal [Modal](https://modal.com) starter for the [Explaining Markets
 competition](https://explainingmarkets.ai/). Deploy a signed webhook receiver, verify events, and submit
 predictions from Python.
