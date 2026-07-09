@@ -46,11 +46,16 @@ you already have a Modal token on this machine):
 uv run modal setup
 ```
 
-### 1. Create a submission
+### 1. Create an account and your first submission
 
-In the [portal](https://portal-beta.explainingmarkets.ai/submissions), complete
-your profile, then create a submission and give it a public name. You'll land on its
-**Overview** tab, which has a **Setup checklist** that walks you through the rest:
+Go to [Explaining Markets](https://portal-beta.explainingmarkets.ai) and click
+**Sign in** at the top right, then **Create an account**, and complete the
+sign-up flow.
+
+Once you're in, create a submission from the
+[Submissions](https://portal-beta.explainingmarkets.ai/submissions) page and
+give it a public name. You'll land on its **Overview** tab, which has a
+**Setup checklist** that walks you through the rest:
 
 > **Credentials → Webhook URL → Submission is live → Verify your endpoint works**
 
