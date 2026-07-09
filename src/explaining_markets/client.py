@@ -3,7 +3,8 @@
 One call: ``POST {EM_API_BASE_URL}/predictions`` authenticated with the
 ``X-API-Key`` header. The API always accepts well-formed predictions with 201;
 late, duplicate, and pre-broadcast submissions are tagged for scoring rather than
-rejected. POST again before the deadline to update — the last accepted POST wins.
+rejected. Only your first submission per event is scored — a re-POST is accepted
+but does not overwrite it.
 """
 
 from __future__ import annotations

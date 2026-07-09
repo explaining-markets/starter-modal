@@ -142,7 +142,8 @@ Re-deploy after editing:
 uv run modal deploy modal_app.py
 ```
 
-You can POST again before the deadline to update — the last accepted POST wins.
+Only your first submission for an event is scored — re-POSTing the same event is
+accepted but won't overwrite it, so get it right the first time.
 
 ---
 
