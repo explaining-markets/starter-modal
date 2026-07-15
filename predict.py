@@ -38,9 +38,11 @@ def predict(event: dict) -> list[dict]:
     Required return: a list of dicts, one per focal asset:
       [{"identifier_value": "AAPL", "predicted_percentile": 0.71}, ...]
 
-    `predicted_percentile` is a float in [0, 1] — your prediction of where the
-    asset's next-day *unexpected* return will fall in its historical distribution
-    (0 = worst, 0.50 = median, 1 = best).
+    `predicted_percentile` is a float in [0, 1] — where you predict the asset's
+    next-day abnormal (market-adjusted) return will rank across all of the
+    quarter's event outcomes: 0 = the quarter's most negative reaction,
+    0.50 = median, 1 = its most positive. It's a cross-sectional rank across the
+    quarter's events, not a percentile within the asset's own history.
     """
     summary = httpx.get(event["information_url"], timeout=10.0)
     summary.raise_for_status()
@@ -79,10 +81,11 @@ class Prediction(BaseModel):
 SYSTEM_PROMPT = """\
 You are a senior equity analyst predicting how a stock will react to an event.
 
-Predict a single percentile in [0, 1] for where the focal asset's next-day
-return will fall in its historical distribution: 0 = worst, 0.50 = median,
-1 = best. The relevant return is the *unexpected*, market-adjusted return —
-a great-but-fully-priced-in beat is not a top-decile event.
+Predict a single percentile in [0, 1] for how the focal asset's next-day
+abnormal return will rank across all of the quarter's event outcomes:
+0 = the quarter's most negative reaction, 0.50 = median, 1 = its most positive.
+The relevant return is the *unexpected*, market-adjusted return — a
+great-but-fully-priced-in beat is not a top-decile event.
 
 Calibration discipline:
 - Long-run base rates: about 25% of events land "up" (>0.75), 50% "neutral"
