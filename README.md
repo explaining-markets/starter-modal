@@ -48,12 +48,12 @@ uv run modal setup
 
 ### 1. Create an account and your first submission
 
-Go to [Explaining Markets](https://portal-beta.explainingmarkets.ai) and click
+Go to [Explaining Markets](https://portal.explainingmarkets.ai) and click
 **Sign in** at the top right, then **Create an account**, and complete the
 sign-up flow.
 
 Once you're in, create a submission from the
-[Submissions](https://portal-beta.explainingmarkets.ai/submissions) page and
+[Submissions](https://portal.explainingmarkets.ai/submissions) page and
 give it a public name. You'll land on its **Overview** tab, which has a
 **Setup checklist** that walks you through the rest:
 

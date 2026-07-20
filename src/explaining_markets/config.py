@@ -8,7 +8,7 @@ Required:
   EM_WEBHOOK_SECRET  your signing secret (whsec_...); verifies incoming webhooks
 
 Optional:
-  EM_API_BASE_URL    API base URL (default: beta)
+  EM_API_BASE_URL    API base URL (default: production)
   OPENAI_API_KEY     when set, predict.py makes real LLM calls; otherwise it
                      falls back to a 0.5 baseline so the round-trip still works
   OPENAI_MODEL       model name for predict.py (default: gpt-5.4-nano)
@@ -19,7 +19,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
-DEFAULT_API_BASE_URL = "https://api-beta.explainingmarkets.ai/v1"
+DEFAULT_API_BASE_URL = "https://api.explainingmarkets.ai/v1"
 DEFAULT_OPENAI_MODEL = "gpt-5.4-nano"
 
 
