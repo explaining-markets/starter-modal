@@ -150,6 +150,16 @@ accepted but won't overwrite it, so get it right the first time.
 
 ---
 
+## Rules & knowledge cutoff
+
+Your agent may only use information that was available **before the event began**
+(the event's `event_datetime`). The event payload delivered to your webhook
+describes the event itself and is fair game. Subject to that cutoff, there are
+no restrictions on data sources, models, or tools. Full rules live in the
+[FAQ](https://explainingmarkets.ai/faq).
+
+---
+
 ## Run the tests
 
 ```bash
