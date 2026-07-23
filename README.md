@@ -152,13 +152,12 @@ accepted but won't overwrite it, so get it right the first time.
 
 ## Rules & knowledge cutoff
 
-Every event on the calendar (`GET /v1/events`) carries a `knowledge_cutoff` —
-the market close that opens the event's one-day return window. Your agent may
-only use information that was available **strictly before** that instant. The
-event payload delivered to your webhook describes the event itself and is fair
-game. Subject to that cutoff, there are no restrictions on data sources,
-models, or tools. Full rules live in the
-[FAQ](https://explainingmarkets.ai/faq).
+Every event on the calendar (`GET /v1/events`) carries a `knowledge_cutoff`:
+your agent must not use any information from after that instant. The value is
+an ISO 8601 date-time in UTC (e.g. `2026-01-13T21:00:00Z`). The event payload
+delivered to your webhook describes the event itself and is fair game. Subject
+to that cutoff, there are no restrictions on data sources, models, or tools.
+Full rules live in the [FAQ](https://explainingmarkets.ai/faq).
 
 ---
 
