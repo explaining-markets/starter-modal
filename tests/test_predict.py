@@ -47,3 +47,64 @@ def test_predict_fallback_shape(monkeypatch) -> None:
         assert set(p) == {"identifier_value", "predicted_percentile"}
         assert 0.0 <= p["predicted_percentile"] <= 1.0
         assert p["predicted_percentile"] == 0.5  # fallback baseline
+
+
+def test_summary_text_formats_official_fact_bundle() -> None:
+    bundle = {
+        "schema_version": "1",
+        "items": [
+            {"kind": "other", "content": ["ignore me"]},
+            {
+                "kind": "facts",
+                "content": [
+                    "Revenue exceeded consensus.",
+                    "Full-year guidance was maintained.",
+                ],
+            },
+        ],
+    }
+
+    assert predict_module._summary_text(bundle) == (
+        "- Revenue exceeded consensus.\n"
+        "- Full-year guidance was maintained."
+    )
+
+
+def test_summary_text_supports_nested_disclosure() -> None:
+    payload = {
+        "disclosure": {
+            "items": [
+                {"kind": "facts", "content": ["Margins included a one-time benefit."]}
+            ]
+        }
+    }
+
+    assert predict_module._summary_text(payload) == (
+        "- Margins included a one-time benefit."
+    )
+
+
+def test_summary_text_preserves_legacy_summary() -> None:
+    assert predict_module._summary_text({"summary": "  In line.  "}) == "In line."
+
+
+def test_strategy_prompt_contains_priced_in_and_quality_rules() -> None:
+    prompt = predict_module.SYSTEM_PROMPT
+
+    assert "ordinary good news is priced in" in prompt
+    assert "Forward guidance" in prompt
+    assert "one-time accounting" in prompt
+    assert "ranking ability, not mean calibration" in prompt
+
+
+def test_prediction_schema_requires_reasoning_scaffold() -> None:
+    prediction = predict_module.Prediction(
+        headline_surprise="mixed",
+        forward_outlook="positive",
+        earnings_quality="high",
+        expectations_bar="normal",
+        key_driver="Guidance increased beyond prior expectations.",
+        predicted_percentile=0.68,
+    )
+
+    assert prediction.predicted_percentile == 0.68

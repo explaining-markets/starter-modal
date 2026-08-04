@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+from typing import Literal
 
 import httpx
 from openai import OpenAI
@@ -33,6 +34,7 @@ _openai_warned = False         # one-shot warning when no key is configured
 SUMMARY_TIMEOUT_SECONDS = 15.0
 LLM_TIMEOUT_SECONDS = 120.0
 LLM_MAX_RETRIES = 1
+STRATEGY_VERSION = "quarterlens-rulebook-ab-v3"
 
 
 def predict(event: dict) -> list[dict]:
@@ -81,35 +83,92 @@ def predict(event: dict) -> list[dict]:
 
 
 class Prediction(BaseModel):
-    """Structured response shape for the LLM call.
+    """Tested reasoning scaffold and submitted prediction.
 
-    The `Field(ge=0, le=1)` constraint flows through into the JSON schema OpenAI's
-    structured-outputs mode enforces during decoding, so the model is guaranteed to
-    return a percentile in [0, 1] — no manual clamping or fallback parsing needed.
+    The four categorical diagnostics force a consistent pass over the main
+    economic mechanisms before the model emits the only field the competition
+    receives: ``predicted_percentile``. This exact scaffold was used in the
+    sealed 2026Q2 A/B evaluation.
     """
 
+    headline_surprise: Literal["negative", "mixed", "positive", "unknown"]
+    forward_outlook: Literal["negative", "mixed", "positive", "unknown"]
+    earnings_quality: Literal["low", "mixed", "high", "unknown"]
+    expectations_bar: Literal["low", "normal", "high", "unknown"]
+    key_driver: str = Field(max_length=180)
     predicted_percentile: float = Field(ge=0.0, le=1.0)
 
 
 SYSTEM_PROMPT = """\
-You are a senior equity analyst predicting how a stock will react to an event.
+You are a senior event-driven equity analyst. Predict the focal stock's
+next-day abnormal-return percentile across this quarter's earnings events:
+0 is the worst reaction, 0.50 is the median, and 1 is the best.
 
-Predict a single percentile in [0, 1] for how the focal asset's next-day
-abnormal return will rank across all of the quarter's event outcomes:
-0 = the quarter's most negative reaction, 0.50 = median, 1 = its most positive.
-The relevant return is the *unexpected*, market-adjusted return — a
-great-but-fully-priced-in beat is not a top-decile event.
+Core directive: assume ordinary good news is priced in. Public companies are
+expected to grow, beat estimates, and improve margins. Rank the *unexpected
+change in expectations*, not the absolute quality of the company or quarter.
+An incremental beat-and-raise is usually 0.40-0.60; strong results with flat
+guidance can be sell-the-news. Values above 0.75 or below 0.25 require a
+material, clearly unexpected catalyst or disappointment.
 
-Calibration discipline:
-- Long-run base rates: about 25% of events land "up" (>0.75), 50% "neutral"
-  (0.25-0.75), 25% "down" (<0.25). Default toward 0.40-0.60 when signals are
-  mixed or modest.
-- Reserve values above 0.80 or below 0.20 for cases with unambiguous,
-  multi-signal evidence. Do not exceed 0.90 or fall below 0.10 without
-  overwhelming, lopsided evidence.
-- Tone alone (confident vs hedging language) should move you no more than
-  ~0.03 absent quantitative confirmation.
+Decision order:
+1. Quantitative surprise versus consensus and prior guidance, not raw growth.
+2. Forward guidance and changes to the trajectory; this normally outweighs
+   backward-looking headline EPS.
+3. Persistence and quality: recurring operations beat one-time accounting,
+   mix, tax, commodity, revaluation, or timing benefits.
+4. Expectations risk: premium/high-growth stocks need immediate delivery.
+   Discount long-dated roadmap promises. Routine financial-sector buybacks
+   are maintenance, not a catalyst.
+5. Contradictions and vetoes: do not average away a concrete forward cut,
+   worsening unit economics, execution failure, churn, or demand deceleration
+   merely because other bullets sound positive.
+
+Validated rulebook patterns from prior data:
+- Pre-profit revenue growth above 30% with flat/worsening operating losses:
+  usually 0.10-0.20, especially if growth is peaking.
+- Cautionary forward language such as "aggressive consensus", "gradual
+  recovery", or guiding to the low end: 0.35-0.50. A >50% growth deceleration
+  or one-time-inflated EPS with no forward acceleration can justify 0.10-0.25.
+- Record margins driven by non-recurring benefits plus an execution failure
+  and a major geography down >15%: 0.10-0.20 despite positive demand language.
+- For telecom/utilities, rising churn can cap the result near 0.50 unless
+  offset by a distinctly stronger cash-flow or guidance catalyst.
+
+Use the full cross-sectional range when warranted. Do not mechanically pull
+every answer toward 0.50: ranking ability, not mean calibration, is the goal.
 """
+
+
+def _summary_text(summary: dict | object) -> str:
+    """Render a disclosure bundle as clean facts instead of raw JSON.
+
+    The competition information URL returns a bundle whose ``items`` include a
+    ``kind == "facts"`` entry with a list of contemporaneous fact bullets. This
+    matches the official research baseline's input format. Keep backward
+    compatibility with older ``{"summary": "..."}`` payloads and preserve a
+    JSON fallback for unexpected schemas.
+    """
+    if not isinstance(summary, dict):
+        return json.dumps(summary)
+
+    direct_summary = summary.get("summary")
+    if isinstance(direct_summary, str) and direct_summary.strip():
+        return direct_summary.strip()
+
+    bundle = summary.get("disclosure")
+    if not isinstance(bundle, dict):
+        bundle = summary
+    items = bundle.get("items")
+    if isinstance(items, list):
+        for item in items:
+            if not isinstance(item, dict) or item.get("kind") != "facts":
+                continue
+            content = item.get("content")
+            if isinstance(content, list) and content:
+                return "\n".join(f"- {fact}" for fact in content)
+
+    return json.dumps(summary)
 
 
 def _ask_llm(*, summary: dict, ticker: str, event_type: str) -> float:
@@ -134,22 +193,13 @@ def _ask_llm(*, summary: dict, ticker: str, event_type: str) -> float:
             timeout=LLM_TIMEOUT_SECONDS, max_retries=LLM_MAX_RETRIES
         )
 
-    summary_text = summary.get("summary") if isinstance(summary, dict) else None
-    if not summary_text:
-        summary_text = json.dumps(summary)
-    summary_text = summary_text[:8000]
+    summary_text = _summary_text(summary)[:8000]
 
     user_prompt = (
         f"Event type: {event_type}\n"
         f"Ticker: {ticker}\n\n"
-        f"Event summary:\n{summary_text}\n\n"
-        "Weigh, in roughly this order:\n"
-        "  1. Quantitative surprise vs expectations — revenue, EPS, segment metrics.\n"
-        "  2. Guidance / outlook — raises, holds, cuts vs the prior trajectory.\n"
-        "  3. Strategic shifts — product launches, M&A, capital allocation, leadership.\n"
-        "  4. Tone and confidence in management commentary (small weight).\n"
-        "  5. Risks called out — regulatory, supply chain, demand, competition.\n\n"
-        f"Predict the next-day unexpected-return percentile for {ticker}."
+        f"Contemporaneous earnings-call facts:\n{summary_text}\n\n"
+        "Return the next-day unexpected, market-adjusted return percentile."
     )
 
     resp = _openai.chat.completions.parse(
